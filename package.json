@@ -1,0 +1,14 @@
+{
+  "name": "stardust-vrc-assets",
+  "version": "1.0.0",
+  "description": "",
+  "main": "assign-event-roles.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "essiebes",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "prompts": "^2.4.2"
+  }
+}

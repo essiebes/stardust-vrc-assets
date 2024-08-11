@@ -1,0 +1,61 @@
+name: Update Assets
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '20 */3 * * *'
+
+jobs:
+  download-and-commit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - run: npm ci
+
+      - name: Set up jq
+        run: sudo apt-get install -y jq
+
+      - name: Download latest calendar
+        run: bash fetch-latest-calendar.sh
+
+      - name: Download latest group photos
+        run: bash fetch-latest-group-photos.sh
+
+      - name: Download authorized users list
+        run: node fetch-authorized-users.js
+        env: 
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git add .
+          if git diff --cached --quiet; then
+            echo "No changes detected"
+            echo "changes_detected=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected"
+            echo "changes_detected=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit changes
+        if: steps.check_changes.outputs.changes_detected == 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Update assets"
+          git push
