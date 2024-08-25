@@ -1,27 +1,35 @@
-name: Update Group Photos
+name: Update Assets
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '20 */2 * * *'
 
 jobs:
   download-and-commit:
     runs-on: ubuntu-latest
     steps:
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set up jq
         run: sudo apt-get install -y jq
 
-      - name: Download images
+      - name: Download latest calendar
+        run: bash fetch-latest-calendar.sh
+
+      - name: Download latest group photos
         run: bash fetch-latest-group-photos.sh
     
       - name: Check for changes
         id: check_changes
         run: |
-          git add latest_group_photo_*.*
+          git add .
           if git diff --cached --quiet; then
             echo "No changes detected"
             echo "changes_detected=false" >> $GITHUB_OUTPUT
@@ -35,6 +43,6 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add latest_group_photo_*.*
-          git commit -m "Update group photos"
+          git add .
+          git commit -m "Update assets"
           git push

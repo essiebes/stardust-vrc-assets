@@ -12,8 +12,8 @@ group_photo_id=$(echo $response | jq -r '.data[0].group_photo')
 echo "Group photo ID: $group_photo_id"
 
 # Construct the URL for the group photo
-photo_url_1024="$base_url/assets/$group_photo_id?fit=inside&width=1024&height=1024&quality=80&withoutEnlargement=true&format=webp"
-photo_url_2048="$base_url/assets/$group_photo_id?fit=inside&width=2048&height=2048&quality=80&withoutEnlargement=true&format=webp"
+photo_url_1024="$base_url/assets/$group_photo_id?key=vrchat-1024-16x9"
+photo_url_2048="$base_url/assets/$group_photo_id?key=vrchat-2048-16x9"
 
 echo "Group photo URL (1024x1024): $photo_url_1024"
 echo "Group photo URL (2048x2048): $photo_url_2048"
