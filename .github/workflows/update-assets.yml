@@ -3,7 +3,7 @@ name: Update Assets
 on:
   workflow_dispatch:
   schedule:
-    - cron: '20 */2 * * *'
+    - cron: '20 */3 * * *'
 
 jobs:
   download-and-commit:
