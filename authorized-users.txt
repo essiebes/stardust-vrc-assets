@@ -1,0 +1,3 @@
+name;roles
+CloudGazerr;host,security,photographer
+essiebes;staff,dj,photographer
