@@ -3,7 +3,7 @@ const BASE_URL = 'https://clubs.essiebes.nl/stardust/api';
 const API_TOKEN = process.env.API_TOKEN;
 
 (async () => {
-    const linksResponse = await fetch(`${BASE_URL}/items/vrchat_links?fields=discord_id,vrchat_name&limit-1&filter[status][_eq]=published`,
+    const linksResponse = await fetch(`${BASE_URL}/items/vrchat_links?fields=discord_id,vrchat_name,booster&limit-1&filter[status][_eq]=published`,
         {
             headers: {
                 Authorization: `Bearer ${API_TOKEN}`
