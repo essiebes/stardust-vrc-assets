@@ -1,3 +1,4 @@
 name;roles
 CloudGazerr;host,security,dj,photographer
 essiebes;staff,dj,photographer
+Celsior;security,dj,photographer
