@@ -5,7 +5,7 @@ base_url="https://clubs.essiebes.nl/stardust/api"
 params="filter%5Beffective_from%5D%5B_lte%5D=\$NOW()&filter%5Bstatus%5D%5B_eq%5D=published&fields=id,status,effective_from,calendar_picture&sort=-effective_from&limit=1"
 url="$base_url/items/event_schedules?$params"
 echo "URL: $url"
-response=$(curl -s $url)
+response=$(curl -H "Authorization: Bearer $API_TOKEN" -s $url)
 
 # Extract the calendar picture ID using jq
 calendar_picture_id=$(echo $response | jq -r '.data[0].calendar_picture')

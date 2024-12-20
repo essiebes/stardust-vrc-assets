@@ -30,9 +30,13 @@ jobs:
 
       - name: Download latest calendar
         run: bash fetch-latest-calendar.sh
+        env: 
+          API_TOKEN: ${{ secrets.API_TOKEN }}
 
       - name: Download latest group photos
         run: bash fetch-latest-group-photos.sh
+        env: 
+          API_TOKEN: ${{ secrets.API_TOKEN }}
 
       - name: Download authorized users list
         run: node fetch-authorized-users.js
