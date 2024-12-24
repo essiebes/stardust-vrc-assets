@@ -38,11 +38,6 @@ jobs:
         env: 
           API_TOKEN: ${{ secrets.API_TOKEN }}
 
-      - name: Download authorized users list
-        run: node fetch-authorized-users.js
-        env: 
-          API_TOKEN: ${{ secrets.API_TOKEN }}
-
       - name: Check for changes
         id: check_changes
         run: |
