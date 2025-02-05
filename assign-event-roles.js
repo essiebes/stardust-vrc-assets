@@ -1,6 +1,6 @@
 const prompts = require('prompts');
 
-const BASE_URL = 'https://clubs.essiebes.nl/stardust/api';
+const BASE_URL = 'https://api.clubstardustvr.com';
 const API_TOKEN = process.env.API_TOKEN;
 
 const log = (log) => {

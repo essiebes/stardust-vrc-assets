@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Call the first URL and get the JSON response
-base_url="https://clubs.essiebes.nl/stardust/api"
+base_url="https://api.clubstardustvr.com"
 params="filter%5Beffective_from%5D%5B_lte%5D=\$NOW()&filter%5Bstatus%5D%5B_eq%5D=published&fields=id,status,effective_from,calendar_picture&sort=-effective_from&limit=1"
 url="$base_url/items/event_schedules?$params"
 echo "URL: $url"

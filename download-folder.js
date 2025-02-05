@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const { Readable } = require('stream');
 const { finished } = require('stream/promises');
-const BASE_URL = 'https://clubs.essiebes.nl/stardust/api';
+const BASE_URL = 'https://api.clubstardustvr.com';
 const API_TOKEN = process.env.API_TOKEN;
 let IGNORE_EXISTING_FOLDERS = true;
 
