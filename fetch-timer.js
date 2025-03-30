@@ -1,23 +1,25 @@
 
 import { fetchImage } from './fetch-asset.js';
-import { mkdir } from 'fs/promises';
+import { mkdir, rm } from 'fs/promises';
 import { autoCropImage, convertPDFtoImage, downloadSheetAsPDF } from './fetch-sheet.js';
 import { resolve } from 'path';
 
 // Extracted values from your URL
 const SHEET_ID = process.env.SHEET_ID ?? "";
 const SHEET_GID = process.env.SHEET_GID ?? "";
+const SHEET_RANGE = process.env.SHEET_RANGE ?? "B2:H45";
+const SHEET_MODE = process.env.SHEET_MODE ?? 'fit';
 
 // Google Sheets PDF Export URL
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=pdf&gid=${SHEET_GID}
 &size=a3
-&range=B2:H44
+&range=${SHEET_RANGE}
 &portrait=false
 &fitw=true
-&top_margin=0.2
-&bottom_margin=0.2
-&left_margin=0.2
-&right_margin=0.2
+&top_margin=0.1
+&bottom_margin=0.1
+&left_margin=0.1
+&right_margin=0.1
 &gridlines=false
 &printtitle=false
 &sheetnames=false`;
@@ -26,7 +28,14 @@ const fetchEventSheet = async () => {
     const sheetFile = 'dist/event_sheet';
     await downloadSheetAsPDF(SHEET_URL, sheetFile);
     await convertPDFtoImage(sheetFile);
-    await autoCropImage(sheetFile, 2048, 2048, 'fit');
+    if (SHEET_MODE === 'fill') {
+        await autoCropImage(sheetFile, 1152, 2048, SHEET_MODE);
+    } else {
+        await autoCropImage(sheetFile, 2048, 2048, SHEET_MODE);
+    }
+
+    await rm(`${sheetFile}.pdf`);
+    await rm(`${sheetFile}_1.png`);
 }
 
 const fetchCalendar = async () => {

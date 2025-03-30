@@ -9,6 +9,7 @@ on:
     - cron: "20 */3 * * *"
     - cron: "15 17 * * *"
     - cron: "15 18 * * *"
+    - cron: "*/5 18-22 * * *"
 
 permissions:
   contents: read
