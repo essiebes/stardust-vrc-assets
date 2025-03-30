@@ -3,12 +3,16 @@
   "version": "1.0.0",
   "description": "",
   "main": "assign-event-roles.js",
+  "type": "module",
   "scripts": {
+    "fetch": "node ./fetch-timer.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "essiebes",
   "license": "UNLICENSED",
   "dependencies": {
-    "prompts": "^2.4.2"
+    "pdf-to-img": "^4.4.0",
+    "prompts": "^2.4.2",
+    "sharp": "^0.33.5"
   }
 }

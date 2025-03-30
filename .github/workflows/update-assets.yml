@@ -6,57 +6,45 @@ on:
     branches:
       - main
   schedule:
-    - cron: '20 */3 * * *'
-    - cron: '15 17 * * *'
-    - cron: '15 18 * * *'
+    - cron: "20 */3 * * *"
+    - cron: "15 17 * * *"
+    - cron: "15 18 * * *"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  download-and-commit:
+  update_assets:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup NodeJS
+      - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-      
-      - run: npm ci
-
-      - name: Set up jq
-        run: sudo apt-get install -y jq
-
-      - name: Download latest calendar
-        run: bash fetch-latest-calendar.sh
-        env: 
+          node-version: 20.x
+          cache: "npm"
+      - name: Install dependencies
+        run: npm ci
+      - name: Fetch all event details
+        run: npm run fetch
+        env:
           API_TOKEN: ${{ secrets.API_TOKEN }}
-
-      - name: Download latest group photos
-        run: bash fetch-latest-group-photos.sh
-        env: 
-          API_TOKEN: ${{ secrets.API_TOKEN }}
-
-      - name: Check for changes
-        id: check_changes
-        run: |
-          git add .
-          if git diff --cached --quiet; then
-            echo "No changes detected"
-            echo "changes_detected=false" >> $GITHUB_OUTPUT
-          else
-            echo "Changes detected"
-            echo "changes_detected=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Commit changes
-        if: steps.check_changes.outputs.changes_detected == 'true'
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add .
-          git commit -m "Update assets"
-          git push
+          API_BASE_URL: ${{ vars.API_BASE_URL }}
+          SHEET_ID: ${{ secrets.SHEET_ID }}
+          SHEET_GID: ${{ secrets.SHEET_GID }}
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

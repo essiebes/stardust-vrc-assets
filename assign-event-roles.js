@@ -1,6 +1,6 @@
-const prompts = require('prompts');
+import prompts from 'prompts';
 
-const BASE_URL = 'https://api.clubstardustvr.com';
+const BASE_URL = process.env.API_BASE_URL;
 const API_TOKEN = process.env.API_TOKEN;
 
 const log = (log) => {
@@ -12,7 +12,7 @@ const log = (log) => {
 const arrayEqual = (a, b) => JSON.stringify(a.sort()) === JSON.stringify(b.sort());
 
 (async () => {
-    const staffResponse = await fetch(`${BASE_URL}/items/staff?limit=-1`, {
+    const staffResponse = await fetch(`${BASE_URL}/items/staff?limit=-1&filter[status][_neq]=archived`, {
         headers: {
             'Accept': 'application/json',
             Authorization: `Bearer ${API_TOKEN}`
@@ -65,7 +65,7 @@ const arrayEqual = (a, b) => JSON.stringify(a.sort()) === JSON.stringify(b.sort(
             type: 'autocompleteMultiselect',
             name: 'host',
             message: 'Which Hosts participated in this event?',
-            choices: staff.map(s => ({
+            choices: staff.filter(s => s.roles.includes('host')).map(s => ({
                 title: s.name,
                 value: s.id,
                 selected: event.event_staff.find(es => es.staff_id === s.id && es.roles.includes('host'))
@@ -78,7 +78,7 @@ const arrayEqual = (a, b) => JSON.stringify(a.sort()) === JSON.stringify(b.sort(
             type: 'autocompleteMultiselect',
             name: 'security',
             message: 'Which Security participated in this event?',
-            choices: staff.map(s => ({
+            choices: staff.filter(s => s.roles.includes('security')).map(s => ({
                 title: s.name,
                 value: s.id,
                 selected: event.event_staff.find(es => es.staff_id === s.id && es.roles.includes('security'))
@@ -91,7 +91,7 @@ const arrayEqual = (a, b) => JSON.stringify(a.sort()) === JSON.stringify(b.sort(
             type: 'autocompleteMultiselect',
             name: 'photographer',
             message: 'Which photographers participated in this event?',
-            choices: staff.map(s => ({
+            choices: staff.filter(s => s.roles.includes('photographer')).map(s => ({
                 title: s.name,
                 value: s.id,
                 selected: event.event_staff.find(es => es.staff_id === s.id && es.roles.includes('photographer'))
@@ -104,7 +104,7 @@ const arrayEqual = (a, b) => JSON.stringify(a.sort()) === JSON.stringify(b.sort(
             type: 'autocompleteMultiselect',
             name: 'dj',
             message: 'Which DJs participated in this event?',
-            choices: staff.map(s => ({
+            choices: staff.filter(s => s.roles.includes('dj')).map(s => ({
                 title: s.name,
                 value: s.id,
                 selected: event.event_staff.find(es => es.staff_id === s.id && es.roles.includes('dj'))
@@ -117,7 +117,7 @@ const arrayEqual = (a, b) => JSON.stringify(a.sort()) === JSON.stringify(b.sort(
             type: 'autocompleteMultiselect',
             name: 'dance_captain',
             message: 'Which Dance Captain participated in this event?',
-            choices: staff.map(s => ({
+            choices: staff.filter(s => s.roles.includes('dance_captain')).map(s => ({
                 title: s.name,
                 value: s.id,
                 selected: event.event_staff.find(es => es.staff_id === s.id && es.roles.includes('dance_captain'))
@@ -125,6 +125,19 @@ const arrayEqual = (a, b) => JSON.stringify(a.sort()) === JSON.stringify(b.sort(
             hint: '- Space to select. Return to submit',
             min: 0,
             max: 2,
+        },
+        {
+            type: 'autocompleteMultiselect',
+            name: 'event_coordinator',
+            message: 'Which Event Coordinator participated in this event?',
+            choices: staff.filter(s => s.roles.includes('event_coordinator')).map(s => ({
+                title: s.name,
+                value: s.id,
+                selected: event.event_staff.find(es => es.staff_id === s.id && es.roles.includes('event_coordinator'))
+            })),
+            hint: '- Space to select. Return to submit',
+            min: 1,
+            max: 2
         },
     ], {
         onCancel: () => {
@@ -154,6 +167,7 @@ const arrayEqual = (a, b) => JSON.stringify(a.sort()) === JSON.stringify(b.sort(
     addToStaff(selectedStaff, response.photographer, 'photographer');
     addToStaff(selectedStaff, response.dj, 'dj');
     addToStaff(selectedStaff, response.dance_captain, 'dance_captain');
+    addToStaff(selectedStaff, response.event_coordinator, 'event_coordinator');
     const selectedStaffIds = Object.keys(selectedStaff);
 
     const toDeleteStaff = event.event_staff.filter(es => !selectedStaffIds.includes(es.staff_id));

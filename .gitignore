@@ -3,3 +3,4 @@ photos/
 node_modules/
 ticket_logs.*
 members.json
+dist/

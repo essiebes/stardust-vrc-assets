@@ -1,7 +1,8 @@
-const fs = require('node:fs');
-const { Readable } = require('stream');
-const { finished } = require('stream/promises');
-const BASE_URL = 'https://api.clubstardustvr.com';
+import fs from 'fs';
+import { Readable } from 'node:stream';
+import { finished } from 'node:stream/promises';
+
+const BASE_URL = process.env.API_BASE_URL;
 const API_TOKEN = process.env.API_TOKEN;
 let IGNORE_EXISTING_FOLDERS = true;
 
@@ -127,5 +128,4 @@ const log = (log) => {
     IGNORE_EXISTING_FOLDERS = false;
     await download('./photos', [{ ...staffFolder, name: 'staff' }]);
     log('Done Downloading Staff Photos');
-
 })();
