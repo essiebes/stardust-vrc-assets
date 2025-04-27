@@ -40,6 +40,7 @@ jobs:
           API_BASE_URL: ${{ vars.API_BASE_URL }}
           SHEET_ID: ${{ secrets.SHEET_ID }}
           SHEET_GID: ${{ secrets.SHEET_GID }}
+          SHEET_RANGE: ${{ vars.SHEET_RANGE }}
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact to GitHub Pages
