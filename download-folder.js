@@ -2,6 +2,9 @@ import fs from 'fs';
 import { Readable } from 'node:stream';
 import { finished } from 'node:stream/promises';
 
+const EVENT_FOLDER_ID = process.env.EVENT_FOLDER_ID ?? '0';
+const STAFF_FOLDER_ID = process.env.STAFF_FOLDER_ID ?? '0';
+const TARGET_FOLDER = process.env.TARGET_FOLDER ?? './photos';
 const BASE_URL = process.env.API_BASE_URL;
 const API_TOKEN = process.env.API_TOKEN;
 let IGNORE_EXISTING_FOLDERS = true;
@@ -16,7 +19,7 @@ const log = (log) => {
     const foldersResponse = await fetch(`${BASE_URL}/folders?limit=-1`,
         {
             headers: {
-                // Authorization: `Bearer ${API_TOKEN}`
+                Authorization: `Bearer ${API_TOKEN}`
             }
         }
     );
@@ -97,7 +100,7 @@ const log = (log) => {
 
             for (const file of files) {
                 if (fs.existsSync(`${newPath}/${file.filename_download}`)) {
-                    console.log(`Photo ${newPath}/${file.filename_download} already exists`);
+                    console.warn(`[WARN] Photo ${newPath}/${file.filename_download} already exists`);
                     continue;
                 }
 
@@ -117,15 +120,15 @@ const log = (log) => {
 
     // Download all event photos
     log('Downloading Event Photos');
-    const eventFolder = findFolder(nestedFolders, '28c7ed52-d051-4c14-98ac-2db22948557c');
+    const eventFolder = findFolder(nestedFolders, EVENT_FOLDER_ID);
     IGNORE_EXISTING_FOLDERS = true;
-    await download('./photos', [{ ...eventFolder, name: '' }]);
+    await download(TARGET_FOLDER, [{ ...eventFolder, name: '' }]);
     log('Done Downloading Event Photos');
 
     // Download all staff photos
     log('Downloading Staff Photos');
-    const staffFolder = findFolder(nestedFolders, 'd7056527-c01e-422b-a6cf-967369d9d76b');
+    const staffFolder = findFolder(nestedFolders, STAFF_FOLDER_ID);
     IGNORE_EXISTING_FOLDERS = false;
-    await download('./photos', [{ ...staffFolder, name: 'staff' }]);
+    await download(TARGET_FOLDER, [{ ...staffFolder, name: 'staff' }]);
     log('Done Downloading Staff Photos');
 })();
