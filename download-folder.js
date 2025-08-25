@@ -86,34 +86,58 @@ const log = (log) => {
             const filesResponse = await fetch(`${BASE_URL}/files?limit=-1&filter[folder]=${folder.id}`,
                 {
                     headers: {
-                        // Authorization: `Bearer ${API_TOKEN}`
+                        Authorization: `Bearer ${API_TOKEN}`
                     }
                 }
-            );
+            ).catch((err) => {
+                console.error(`[ERROR] Failed to fetch files for ${folder.name}`, err);
+            });
 
             if (!filesResponse.ok) {
-                throw new Error(`Failed to fetch files for ${folder.name}: ${filesResponse.statusText}`);
+                console.error(`[ERROR] Failed to fetch files for ${folder.name}: ${filesResponse.statusText}`);
+                return;
             }
 
             const files = (await filesResponse.json()).data;
             console.log(`Found ${files.length} photos in folder ${folder.name}`);
 
-            for (const file of files) {
-                if (fs.existsSync(`${newPath}/${file.filename_download}`)) {
-                    console.warn(`[WARN] Photo ${newPath}/${file.filename_download} already exists`);
-                    continue;
-                }
+            let workerIndex = 0;
+            async function worker() {
+                while (workerIndex < files.length) {
+                    const file = files[workerIndex++];
+                    const targetPath = `${newPath}/${file.filename_download}`;
 
-                // Download photo
-                const stream = fs.createWriteStream(`${newPath}/${file.filename_download}`);
-                const response = await fetch(`${BASE_URL}/assets/${file.id}`);
-                await finished(Readable.fromWeb(response.body).pipe(stream));
-                console.log(`Downloaded photo ${newPath}/${file.filename_download}`);
+                    if (fs.existsSync(targetPath)) {
+                        // console.warn(`[WARN] Photo ${targetPath} already exists`);
+                        continue;
+                    }
+
+                    try {
+                        const stream = fs.createWriteStream(targetPath);
+                        const response = await fetch(`${BASE_URL}/assets/${file.id}`);
+                        await finished(Readable.fromWeb(response.body).pipe(stream));
+                        console.log(`Downloaded photo ${targetPath}`);
+                    } catch (err) {
+                        console.error(`[ERROR] Failed to download ${file.filename_download}:`, err);
+                    }
+                }
             }
+
+            await Promise.all(Array.from({ length: 4 }, worker));
 
             // Recurse
             if (folder.children) {
-                await download(newPath, folder.children);
+                let folderIndex = 0;
+                async function folderWorker() {
+                    while (folderIndex < folder.children.length) {
+                        const child = folder.children[folderIndex++];
+                        await download(newPath, [child]); // still runs image workers inside
+                    }
+                }
+
+                await Promise.all(
+                    Array.from({ length: 6 }, folderWorker)
+                );
             }
         }
     }
@@ -121,7 +145,7 @@ const log = (log) => {
     // Download all event photos
     log('Downloading Event Photos');
     const eventFolder = findFolder(nestedFolders, EVENT_FOLDER_ID);
-    IGNORE_EXISTING_FOLDERS = true;
+    IGNORE_EXISTING_FOLDERS = false;
     await download(TARGET_FOLDER, [{ ...eventFolder, name: '' }]);
     log('Done Downloading Event Photos');
 
