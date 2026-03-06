@@ -6,7 +6,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: "*/5 18-22 * * 0"
+    - cron: "*/5 18-22 * * 5"
 
 permissions:
   contents: read
@@ -23,7 +23,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Use Node.js 20
+      - name: Use Node.js 24
         uses: actions/setup-node@v4
         with:
           node-version: 24.x
@@ -35,8 +35,8 @@ jobs:
         env:
           API_TOKEN: ${{ secrets.API_TOKEN }}
           API_BASE_URL: ${{ vars.API_BASE_URL }}
-          SHEET_ID: ${{ secrets.SHEET_ID }}
-          SHEET_GID: ${{ secrets.SHEET_GID }}
+          SHEET_ID: ${{ secrets.SHEET_ID_FRIDAY }}
+          SHEET_GID: ${{ secrets.SHEET_GID_FRIDAY }}
           SHEET_RANGE: ${{ vars.SHEET_RANGE }}
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -52,4 +52,3 @@ jobs:
         uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b
         with:
             name: github-pages
-
